@@ -5,15 +5,11 @@ const MOUSE_SENSITIVITY := 0.0022
 const MAX_PITCH := 1.5
 
 @onready var camera: Camera3D = $Camera3D
-@onready var flashlight: SpotLight3D = $Camera3D/Flashlight
-@onready var enemy: Node3D = get_node_or_null("../Enemy")
 
 var _pitch: float = 0.0
-var _base_flashlight_energy: float = 2.0
 
 
 func _ready() -> void:
-	_base_flashlight_energy = flashlight.light_energy
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
@@ -46,29 +42,3 @@ func _physics_process(_delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, MOVE_SPEED)
 
 	move_and_slide()
-	_update_atmosphere()
-
-
-func _update_atmosphere() -> void:
-	if enemy == null:
-		return
-
-	var to_enemy := enemy.global_position - global_position
-	to_enemy.y = 0.0
-	var dist := to_enemy.length()
-	var prox := clampf(1.0 - dist / 12.0, 0.0, 1.0)
-	GameManager.proximity_to_enemy = prox
-
-	var flicker := 1.0 + prox * 0.25 * (sin(Time.get_ticks_msec() * 0.038) * 0.7 + sin(Time.get_ticks_msec() * 0.009) * 0.3)
-	flashlight.light_energy = _base_flashlight_energy * clampf(flicker, 0.5, 1.4)
-
-	if prox > 0.001:
-		var shake := 0.04 * prox
-		var t := Time.get_ticks_msec() * 0.001
-		camera.position = Vector3(
-			sin(t * 60.0) * shake + sin(t * 35.0) * shake,
-			sin(t * 50.0) * shake * 0.35,
-			0.0
-		)
-	else:
-		camera.position = Vector3.ZERO

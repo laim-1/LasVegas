@@ -50,13 +50,13 @@ func _build_prototype_room() -> void:
 	var wall_y1 := 3.0
 	var t := 0.2
 
-	_add_box(Vector3(min_x, floor_y0, min_z), Vector3(max_x, floor_y1, max_z), Color(0.5, 0.5, 0.55))
-	_add_box(Vector3(min_x, wall_y0, min_z - t), Vector3(max_x, wall_y1, min_z), Color(0.2, 0.2, 0.25))
-	_add_box(Vector3(min_x, wall_y0, max_z), Vector3(max_x, wall_y1, max_z + t), Color(0.2, 0.2, 0.25))
-	_add_box(Vector3(min_x - t, wall_y0, min_z), Vector3(min_x, wall_y1, max_z), Color(0.2, 0.2, 0.25))
-	_add_box(Vector3(max_x, wall_y0, min_z), Vector3(max_x + t, wall_y1, max_z), Color(0.2, 0.2, 0.25))
-	_add_box(Vector3(-1.6, wall_y0, -2.0), Vector3(1.6, wall_y1, -1.4), Color(0.18, 0.18, 0.22))
-	_add_box(Vector3(-3.5, wall_y0, 1.4), Vector3(-2.9, wall_y1, 3.5), Color(0.18, 0.18, 0.22))
+	_add_box(Vector3(min_x, floor_y0, min_z), Vector3(max_x, floor_y1, max_z), Color(0.62, 0.64, 0.68))
+	_add_box(Vector3(min_x, wall_y0, min_z - t), Vector3(max_x, wall_y1, min_z), Color(0.48, 0.5, 0.55))
+	_add_box(Vector3(min_x, wall_y0, max_z), Vector3(max_x, wall_y1, max_z + t), Color(0.48, 0.5, 0.55))
+	_add_box(Vector3(min_x - t, wall_y0, min_z), Vector3(min_x, wall_y1, max_z), Color(0.48, 0.5, 0.55))
+	_add_box(Vector3(max_x, wall_y0, min_z), Vector3(max_x + t, wall_y1, max_z), Color(0.48, 0.5, 0.55))
+	_add_box(Vector3(-1.6, wall_y0, -2.0), Vector3(1.6, wall_y1, -1.4), Color(0.42, 0.44, 0.5))
+	_add_box(Vector3(-3.5, wall_y0, 1.4), Vector3(-2.9, wall_y1, 3.5), Color(0.42, 0.44, 0.5))
 
 
 func get_player_spawn() -> Vector3:

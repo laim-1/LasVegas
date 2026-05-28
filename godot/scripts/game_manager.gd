@@ -1,9 +1,9 @@
 extends Node
-## Global game state: survive timer, win/lose, proximity for audio/atmosphere.
+## Global game state. Explore mode: walk the map with no monster or timer pressure.
 
 enum Mode { PLAYING, DEAD, WON }
 
-const SURVIVE_SECONDS := 30.0
+const EXPLORE_MODE := true
 
 var mode: Mode = Mode.PLAYING
 var elapsed_seconds: float = 0.0
@@ -22,15 +22,20 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("restart"):
 		restart()
 
+	if EXPLORE_MODE:
+		return
+
 	if mode != Mode.PLAYING:
 		return
 
 	elapsed_seconds += delta
-	if elapsed_seconds >= SURVIVE_SECONDS:
+	if elapsed_seconds >= 30.0:
 		mode = Mode.WON
 
 
 func on_player_caught() -> void:
+	if EXPLORE_MODE:
+		return
 	if mode == Mode.PLAYING:
 		mode = Mode.DEAD
 
@@ -43,9 +48,11 @@ func restart() -> void:
 
 
 func get_status_text() -> String:
+	if EXPLORE_MODE:
+		return "Explore mode — WASD move, mouse look, Q restart"
 	match mode:
 		Mode.PLAYING:
-			var remaining := maxf(0.0, SURVIVE_SECONDS - elapsed_seconds)
+			var remaining := maxf(0.0, 30.0 - elapsed_seconds)
 			return "Survive: %.1fs  (WASD move, mouse look, Q restart)" % remaining
 		Mode.DEAD:
 			return "You were caught. Press Q to restart."
