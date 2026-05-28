@@ -10,7 +10,8 @@ const F1_H := 2.75
 const F2_SLAB := 2.85
 const F2_H := 2.55
 const INT_T := 0.14
-const DOOR_HALF := 0.75
+const DOOR_HALF := 1.0
+const DOOR_INT_HALF := 1.05
 
 const COL_WALL_EXT := Color(0.72, 0.62, 0.52)
 const COL_WALL_INT := Color(0.5, 0.48, 0.44)
@@ -60,9 +61,8 @@ static func build(level: HorrorLevel, cx: float, cz: float, facing: HorrorLevel.
 	_add_wall_z(level, iz0, ix0, ix1, y0, y_f1_ceil, INT_T, COL_WALL_INT)
 	_add_wall_x(level, ix0, iz0, iz1, y0, y_f1_ceil, INT_T, COL_WALL_INT)
 	_add_wall_x(level, ix1, iz0, iz1, y0, y_f1_ceil, INT_T, COL_WALL_INT)
-	# Front: open (porch door); sides of entry only
-	_add_wall_z(level, iz1, ix0, x_stair0, y0, y_f1_ceil, INT_T, COL_WALL_INT)
-	_add_wall_z(level, iz1, x_stair1, ix1, y0, y_f1_ceil, INT_T, COL_WALL_INT)
+	# Front: centered doorway aligned with porch and exterior door
+	_add_wall_z(level, iz1, ix0, ix1, y0, y_f1_ceil, INT_T, COL_WALL_INT, cx, DOOR_INT_HALF)
 
 	_add_wall_z(level, z_foyer_back, x_hall1, x_div, y0, y_f1_ceil, INT_T, COL_WALL_INT)
 	_add_wall_z(level, z_foyer_back, x_div, ix1, y0, y_f1_ceil, INT_T, COL_WALL_INT, cx + 2.0, 1.0)
@@ -167,25 +167,25 @@ static func _add_exterior_windows(level: HorrorLevel, cx: float, cz: float, hw: 
 	var bz := cz - hd
 	# Living / master — large front windows
 	for y_off in [1.0, 3.2]:
-		level.add_box(
+		level.add_box_visual(
 			Vector3(cx + 1.5, y0 + y_off, fz - 0.12),
 			Vector3(cx + 4.2, y0 + y_off + 1.4, fz + 0.12),
 			HorrorLevel.COL_WINDOW
 		)
 	# Kitchen / bed2 — back
-	level.add_box(
+	level.add_box_visual(
 		Vector3(cx + 1.0, y0 + 1.0, bz - 0.12),
 		Vector3(cx + 4.0, y0 + 2.4, bz + 0.12),
 		HorrorLevel.COL_WINDOW
 	)
-	level.add_box(
+	level.add_box_visual(
 		Vector3(cx + 1.0, y0 + 3.2, bz - 0.12),
 		Vector3(cx + 3.5, y0 + 4.5, bz + 0.12),
 		HorrorLevel.COL_WINDOW
 	)
 	# Study — west
 	var wx := cx - hw
-	level.add_box(
+	level.add_box_visual(
 		Vector3(wx - 0.12, y0 + 3.0, cz - 2.5),
 		Vector3(wx + 0.12, y0 + 4.3, cz + 0.5),
 		HorrorLevel.COL_WINDOW
@@ -207,9 +207,10 @@ static func _build_porch(level: HorrorLevel, cx: float, cz: float, _facing: Horr
 		Vector3(cx + plat_w * 0.5, y0 + 0.1, fz + step_h + plat_d),
 		HorrorLevel.COL_SIDEWALK
 	)
-	level.add_box(
-		Vector3(cx - 0.5, y0 + 0.1, fz - 0.08),
-		Vector3(cx + 0.5, y0 + 2.2, fz + 0.12),
+	# Visual only — must not block the entry (add_box uses collision by default).
+	level.add_box_visual(
+		Vector3(cx - 0.5, y0 + 0.1, fz - 0.05),
+		Vector3(cx + 0.5, y0 + 2.2, fz + 0.05),
 		HorrorLevel.COL_DOOR
 	)
 

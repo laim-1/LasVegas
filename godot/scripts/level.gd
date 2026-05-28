@@ -49,7 +49,11 @@ func add_box(box_min: Vector3, box_max: Vector3, color: Color) -> void:
 	_add_box(box_min, box_max, color)
 
 
-func _add_box(box_min: Vector3, box_max: Vector3, color: Color) -> void:
+func add_box_visual(box_min: Vector3, box_max: Vector3, color: Color) -> void:
+	_add_box(box_min, box_max, color, false)
+
+
+func _add_box(box_min: Vector3, box_max: Vector3, color: Color, with_collision: bool = true) -> void:
 	var size := box_max - box_min
 	var center := (box_min + box_max) * 0.5
 
@@ -68,14 +72,14 @@ func _add_box(box_min: Vector3, box_max: Vector3, color: Color) -> void:
 	mat.albedo_color = color
 	mesh_inst.material_override = mat
 
-	var col := CollisionShape3D.new()
-	var shape := BoxShape3D.new()
-	shape.size = size
-	col.shape = shape
-	col.position = center
-
 	body.add_child(mesh_inst)
-	body.add_child(col)
+	if with_collision:
+		var col := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = size
+		col.shape = shape
+		col.position = center
+		body.add_child(col)
 	add_child(body)
 
 
