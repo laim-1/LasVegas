@@ -15,6 +15,6 @@ After export you should see files like:
 - `index.pck`
 - supporting `.js` files
 
-Commit and push, then enable **GitHub Pages** with source **`/docs`** on branch `main`.
+Commit and push Godot changes; CI exports to `docs/` on `main` automatically. Enable **GitHub Pages** with source **`/docs`** on branch **`main`** (not `gh-pages` unless you prefer that branch).
 
 See [../godot/README.md](../godot/README.md) for full steps.
