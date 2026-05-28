@@ -11,16 +11,15 @@ var _ambient_lp: float = 0.0
 
 
 func _ready() -> void:
-	var gen := AudioStreamGenerator.new()
-	gen.mix_rate = int(MIX_RATE)
-	gen.buffer_length = BUFFER_SEC
-	stream = gen
-	_rng.randomize()
-	play()
-	_playback = get_stream_playback() as AudioStreamGeneratorPlayback
+	# Audio disabled (removes clicking/artefacts in web builds).
+	stream = null
+	stop()
+	set_process(false)
+	return
 
 
 func _process(_delta: float) -> void:
+	return
 	if _playback == null:
 		return
 
