@@ -45,6 +45,10 @@ func _ready() -> void:
 	_build_neighborhood()
 
 
+func add_box(box_min: Vector3, box_max: Vector3, color: Color) -> void:
+	_add_box(box_min, box_max, color)
+
+
 func _add_box(box_min: Vector3, box_max: Vector3, color: Color) -> void:
 	var size := box_max - box_min
 	var center := (box_min + box_max) * 0.5
@@ -115,10 +119,64 @@ func _add_wall_segment(
 		_add_box(Vector3(span_a0, WALL_Y0, z0), Vector3(span_a1, y1, z1), color)
 
 
+func _add_wall_segment_height(
+		axis: String,
+		fixed: float,
+		span_a0: float,
+		span_a1: float,
+		span_b: float,
+		y0: float,
+		y1: float,
+		color: Color,
+		door_center: float = INF,
+		door_half_width: float = 0.0
+) -> void:
+	if door_half_width > 0.0 and door_center < INF:
+		var d0 := door_center - door_half_width
+		var d1 := door_center + door_half_width
+		if span_a0 < d0:
+			_add_wall_segment_height(axis, fixed, span_a0, d0, span_b, y0, y1, color)
+		if d1 < span_a1:
+			_add_wall_segment_height(axis, fixed, d1, span_a1, span_b, y0, y1, color)
+		return
+
+	if axis == "x":
+		var x0 := fixed - span_b * 0.5
+		var x1 := fixed + span_b * 0.5
+		_add_box(Vector3(x0, y0, span_a0), Vector3(x1, y1, span_a1), color)
+	else:
+		var z0 := fixed - span_b * 0.5
+		var z1 := fixed + span_b * 0.5
+		_add_box(Vector3(span_a0, y0, z0), Vector3(span_a1, y1, z1), color)
+
+
 func _add_trim_band(axis: String, fixed: float, span_a0: float, span_a1: float, depth: float) -> void:
 	var trim_h := 0.22
 	var y0 := WALL_Y0 + WALL_H - trim_h
 	var y1 := WALL_Y0 + WALL_H
+	if axis == "z":
+		_add_box(
+			Vector3(span_a0, y0, fixed - depth * 0.5),
+			Vector3(span_a1, y1, fixed + depth * 0.5),
+			COL_TRIM
+		)
+	else:
+		_add_box(
+			Vector3(fixed - depth * 0.5, y0, span_a0),
+			Vector3(fixed + depth * 0.5, y1, span_a1),
+			COL_TRIM
+		)
+
+
+func _add_trim_band_height(
+		axis: String,
+		fixed: float,
+		span_a0: float,
+		span_a1: float,
+		depth: float,
+		y0: float,
+		y1: float
+) -> void:
 	if axis == "z":
 		_add_box(
 			Vector3(span_a0, y0, fixed - depth * 0.5),
@@ -173,6 +231,48 @@ func _add_roof(cx: float, cz: float, half_w: float, half_d: float, facing: House
 	_add_box(
 		Vector3(cx + half_w * 0.35, y_main, cz - half_d * 0.5),
 		Vector3(cx + half_w * 0.35 + 0.55, y_main + 1.35, cz - half_d * 0.5 + 0.55),
+		COL_FOUNDATION
+	)
+
+
+func _add_roof_tall(cx: float, cz: float, half_w: float, half_d: float, facing: HouseFacing, wall_top: float) -> void:
+	var y0 := wall_top
+	var y_main := y0 + 0.45
+	_add_box(
+		Vector3(cx - half_w - 0.25, y0, cz - half_d - 0.25),
+		Vector3(cx + half_w + 0.25, y_main, cz + half_d + 0.25),
+		COL_ROOF
+	)
+	var gable_h := 1.25
+	var gable_d := 0.6
+	match facing:
+		HouseFacing.PLUS_Z:
+			_add_box(
+				Vector3(cx - half_w * 0.55, y_main, cz + half_d - 0.1),
+				Vector3(cx + half_w * 0.55, y_main + gable_h, cz + half_d + gable_d),
+				COL_ROOF_TRIM
+			)
+		HouseFacing.MINUS_Z:
+			_add_box(
+				Vector3(cx - half_w * 0.55, y_main, cz - half_d - gable_d),
+				Vector3(cx + half_w * 0.55, y_main + gable_h, cz - half_d + 0.1),
+				COL_ROOF_TRIM
+			)
+		HouseFacing.PLUS_X:
+			_add_box(
+				Vector3(cx + half_w - 0.1, y_main, cz - half_d * 0.55),
+				Vector3(cx + half_w + gable_d, y_main + gable_h, cz + half_d * 0.55),
+				COL_ROOF_TRIM
+			)
+		HouseFacing.MINUS_X:
+			_add_box(
+				Vector3(cx - half_w - gable_d, y_main, cz - half_d * 0.55),
+				Vector3(cx - half_w + 0.1, y_main + gable_h, cz + half_d * 0.55),
+				COL_ROOF_TRIM
+			)
+	_add_box(
+		Vector3(cx + half_w * 0.3, y_main, cz - half_d * 0.45),
+		Vector3(cx + half_w * 0.3 + 0.6, y_main + 1.5, cz - half_d * 0.45 + 0.6),
 		COL_FOUNDATION
 	)
 
@@ -323,42 +423,6 @@ func _add_house(cx: float, cz: float, facing: HouseFacing, enterable: bool) -> v
 	_add_roof(cx, cz, half_w, half_d, facing)
 	_add_porch_at_front(cx, cz, facing, half_d, enterable)
 
-	if enterable:
-		_build_house_interior(cx, cz, facing, half_w, half_d)
-
-
-func _build_house_interior(cx: float, cz: float, facing: HouseFacing, half_w: float, half_d: float) -> void:
-	var inset := 0.4
-	var ix0 := cx - half_w + inset
-	var ix1 := cx + half_w - inset
-	var iz0 := cz - half_d + inset
-	var iz1 := cz + half_d - inset
-	var iy1 := WALL_Y0 + WALL_H - 0.25
-
-	_add_pavement(ix0, iz0, ix1, iz1, COL_INTERIOR_FLOOR)
-
-	match facing:
-		HouseFacing.PLUS_Z:
-			_add_wall_segment("z", iz0, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("x", ix0, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("x", ix1, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-		HouseFacing.MINUS_Z:
-			_add_wall_segment("z", iz1, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("x", ix0, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("x", ix1, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-		HouseFacing.PLUS_X:
-			_add_wall_segment("x", ix0, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("z", iz0, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("z", iz1, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-		HouseFacing.MINUS_X:
-			_add_wall_segment("x", ix1, iz0, iz1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("z", iz0, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-			_add_wall_segment("z", iz1, ix0, ix1, WALL_T, COL_INTERIOR_WALL)
-
-	var cy := iy1
-	_add_box(Vector3(ix0, cy, iz0), Vector3(ix1, cy + 0.15, iz1), COL_INTERIOR_WALL)
-
-
 func _add_tree(tx: float, tz: float) -> void:
 	_add_box(Vector3(tx - 0.2, WALL_Y0, tz - 0.2), Vector3(tx + 0.2, WALL_Y0 + 1.4, tz + 0.2), COL_TREE_TRUNK)
 	_add_box(Vector3(tx - 0.9, WALL_Y0 + 1.2, tz - 0.9), Vector3(tx + 0.9, WALL_Y0 + 3.2, tz + 0.9), COL_TREE_CANOPY)
@@ -447,8 +511,7 @@ func _add_park() -> void:
 
 
 func _add_houses() -> void:
-	# Set back from the cul-de-sac asphalt.
-	_add_house(0.0, -7.5, HouseFacing.PLUS_Z, true)
+	EnterableHouseBuilder.build(self, 0.0, -7.5, HouseFacing.PLUS_Z)
 	_add_house(-14.0, 2.5, HouseFacing.PLUS_X, false)
 	_add_house(14.0, 2.5, HouseFacing.MINUS_X, false)
 	_add_house(-11.5, 9.0, HouseFacing.PLUS_Z, false)
