@@ -19,6 +19,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if Input.is_action_just_pressed("reload_page"):
+		_reload_web_page()
+
 	if Input.is_action_just_pressed("restart"):
 		restart()
 
@@ -40,6 +43,18 @@ func on_player_caught() -> void:
 		mode = Mode.DEAD
 
 
+func _reload_web_page() -> void:
+	if OS.has_feature("web"):
+		if JavaScriptBridge.eval("typeof window.reloadLasVegasGame === 'function'", true):
+			JavaScriptBridge.eval("window.reloadLasVegasGame();", true)
+		else:
+			JavaScriptBridge.eval(
+				"location.replace(location.pathname + '?t=' + Date.now());", true
+			)
+	else:
+		restart()
+
+
 func restart() -> void:
 	mode = Mode.PLAYING
 	elapsed_seconds = 0.0
@@ -49,7 +64,7 @@ func restart() -> void:
 
 func get_status_text() -> String:
 	if EXPLORE_MODE:
-		return "Explore mode — WASD move, mouse look, Q restart"
+		return "Explore — WASD move, mouse look | Q restart | F5 reload page"
 	match mode:
 		Mode.PLAYING:
 			var remaining := maxf(0.0, 30.0 - elapsed_seconds)
