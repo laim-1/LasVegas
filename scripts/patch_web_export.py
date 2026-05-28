@@ -41,17 +41,32 @@ def patch(html_path: Path, version: str) -> None:
   top: 12px;
   right: 12px;
   z-index: 100000;
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 14px 20px;
+  font-size: 17px;
+  font-weight: 600;
   cursor: pointer;
-  background: #2a2a35;
-  color: #eee;
-  border: 1px solid #666;
-  border-radius: 6px;
+  background: #1e4a7a;
+  color: #fff;
+  border: 2px solid #8ab4f8;
+  border-radius: 8px;
   font-family: system-ui, sans-serif;
   pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }}
-#lv-reload-btn:hover {{ background: #3a3a48; }}
+#lv-reload-btn:hover {{ background: #2563a8; }}
+#lv-reload-hint {{
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 100000;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #ddd;
+  background: rgba(0,0,0,0.55);
+  border-radius: 6px;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+}}
 </style>
 <script>
 window.LV_BUILD = "{version}";
@@ -103,6 +118,7 @@ window.reloadLasVegasGame = function() {{
     btn = (
         '<button type="button" id="lv-reload-btn" '
         'onclick="window.reloadLasVegasGame()">Reload game</button>\n'
+        '<div id="lv-reload-hint">Tip: U key or in-game Reload button (Chromebook: no F5)</div>\n'
     )
     html = html.replace("<body>", "<body>\n" + btn, 1)
 

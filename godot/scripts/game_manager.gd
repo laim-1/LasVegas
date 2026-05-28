@@ -43,6 +43,10 @@ func on_player_caught() -> void:
 		mode = Mode.DEAD
 
 
+func reload_from_ui() -> void:
+	_reload_web_page()
+
+
 func _reload_web_page() -> void:
 	if OS.has_feature("web"):
 		if JavaScriptBridge.eval("typeof window.reloadLasVegasGame === 'function'", true):
@@ -64,7 +68,7 @@ func restart() -> void:
 
 func get_status_text() -> String:
 	if EXPLORE_MODE:
-		return "Explore — WASD move, mouse look | Q restart | F5 reload page"
+		return "Explore — WASD move, mouse look | Q restart | U or Reload button = refresh page"
 	match mode:
 		Mode.PLAYING:
 			var remaining := maxf(0.0, 30.0 - elapsed_seconds)
