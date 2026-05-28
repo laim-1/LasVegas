@@ -14,7 +14,7 @@
 |-------|--------|
 | Mouse | Look |
 | W / A / S / D | Move |
-| R | Restart |
+| Q | Restart |
 | Esc | Release mouse (desktop) |
 
 **Web:** click the game canvas once to capture the mouse.

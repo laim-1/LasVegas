@@ -46,9 +46,9 @@ func get_status_text() -> String:
 	match mode:
 		Mode.PLAYING:
 			var remaining := maxf(0.0, SURVIVE_SECONDS - elapsed_seconds)
-			return "Survive: %.1fs  (WASD move, mouse look, R restart)" % remaining
+			return "Survive: %.1fs  (WASD move, mouse look, Q restart)" % remaining
 		Mode.DEAD:
-			return "You were caught. Press R to restart."
+			return "You were caught. Press Q to restart."
 		Mode.WON:
-			return "You survived! Press R to play again."
+			return "You survived! Press Q to play again."
 	return ""
